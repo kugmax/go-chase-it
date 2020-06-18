@@ -9,7 +9,7 @@ ros::ServiceClient client;
 void drive_robot(float lin_x, float ang_z)
 {
     // : Request a service and pass the velocities to it to drive the robot
-    ROS_INFO_STREAM("Drive to a target");
+    //ROS_INFO_STREAM("Drive to a target");
 
     ball_chaser::DriveToTarget srv;
     srv.request.linear_x = lin_x;
@@ -30,33 +30,28 @@ void process_image_callback(const sensor_msgs::Image img)
     // Depending on the white ball position, call the drive_bot function and pass velocities to it
     // Request a stop when there's no white ball seen by the camera
 
-    ROS_INFO_STREAM("process_image_c 1" );
     int end_left_zone = img.width / 3;
-    ROS_INFO_STREAM("process_image_c 2" );
     int start_right_zone = end_left_zone * 2;
 
-    ROS_INFO_STREAM("process_image_c 3" );
+    float speed = 0.5;
+    int pixel_width_pos = 0; 
 
-    ROS_INFO_STREAM("img.width " +std::to_string(img.width) );
-    ROS_INFO_STREAM("img.height " +std::to_string(img.height) );
-    ROS_INFO_STREAM("end_left_zone " + std::to_string(end_left_zone) );
-    ROS_INFO_STREAM("start_right_zone " + std::to_string(start_right_zone));
-
-    float speed = 0.5; 
-
-    for (int i=1; i<img.height; i++ )
+    for (int i=0; i<img.height * img.step;i+=3)
     {
-	for(int j=1; j<img.width; j++)
-	{
-	   int pixel_pos = i * j - 1; 
-	  //TODO: here bug need pixel_pos devide on height ??
-	   if (img.data[pixel_pos] == white_pixel )
+	   if (pixel_width_pos++ >= img.width - 1)
 	   {
-		if (pixel_pos < end_left_zone)
+		pixel_width_pos = 0;
+           }
+		
+	   if (img.data[i] == white_pixel && img.data[i+1] == white_pixel && img.data[i+2] == white_pixel)
+	   {
+		
+    		ROS_INFO_STREAM("found white pixel " + std::to_string(pixel_width_pos));
+		if (pixel_width_pos < end_left_zone)
 		{
 		   drive_robot(0.0, speed);
 		} 
-		else if (pixel_pos > start_right_zone) 
+		else if (pixel_width_pos > start_right_zone) 
 		{
 		   drive_robot(0.0, -speed);
 		} 
@@ -68,7 +63,6 @@ void process_image_callback(const sensor_msgs::Image img)
 
 		return;
 	   }
-	}
     }
 
     drive_robot(0.0, 0.0);
