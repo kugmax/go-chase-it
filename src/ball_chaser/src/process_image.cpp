@@ -30,7 +30,7 @@ void process_image_callback(const sensor_msgs::Image img)
     // Depending on the white ball position, call the drive_bot function and pass velocities to it
     // Request a stop when there's no white ball seen by the camera
 
-    int end_left_zone = img.width / 3;
+    int end_left_zone = img.step / 3;
     int start_right_zone = end_left_zone * 2;
 
     float speed = 0.5;
@@ -40,7 +40,7 @@ void process_image_callback(const sensor_msgs::Image img)
 
     for (int i=0; i<img.height * img.step;i+=3)
     {
-	   if (pixel_width_pos++ >= img.width - 1)
+	   if (pixel_width_pos >= img.step)
 	   {
 		pixel_width_pos = 0;
            }
@@ -61,9 +61,12 @@ void process_image_callback(const sensor_msgs::Image img)
 		   mid++;
 		}
 	   }
+	
+	   pixel_width_pos += 3;
     }
 
     ROS_INFO_STREAM("left " + std::to_string(left) + " mid " + std::to_string(mid) + " right " + std::to_string(right) );
+    int threshold = 200;
 
     if (left == 0 && right == 0 && mid == 0) {
     	drive_robot(0.0, 0.0);
@@ -71,14 +74,14 @@ void process_image_callback(const sensor_msgs::Image img)
     } else if (left > 0 && right > 0 && mid > 0) {
     	drive_robot(0.0, 0.0);
     
-    } else if (left > mid) {
+    } else if (left - mid > threshold) {
 	drive_robot(0.0, speed);
     
-    } else if (mid > right) {
-        drive_robot(speed, 0.0);
+    } else if (right - mid > threshold) {
+        drive_robot(0.0, -speed);
     
     } else {
-	drive_robot(0.0, -speed);
+	drive_robot(speed, 0.0);
     }
 
 }
