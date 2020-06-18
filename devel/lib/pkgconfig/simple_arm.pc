@@ -1,8 +1,0 @@
-prefix=/home/robond/Documents/Documents.github/go-chase-it/devel
-
-Name: simple_arm
-Description: Description of simple_arm
-Version: 0.0.0
-Cflags: -I/home/robond/Documents/Documents.github/go-chase-it/devel/include
-Libs: -L/home/robond/Documents/Documents.github/go-chase-it/devel/lib 
-Requires: 

@@ -1,8 +1,0 @@
-prefix=/home/robond/Documents/Documents.github/go-chase-it/devel
-
-Name: my_robot
-Description: Description of my_robot
-Version: 0.0.0
-Cflags: 
-Libs: -L/home/robond/Documents/Documents.github/go-chase-it/devel/lib 
-Requires: 
