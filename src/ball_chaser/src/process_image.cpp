@@ -36,6 +36,8 @@ void process_image_callback(const sensor_msgs::Image img)
     float speed = 0.5;
     int pixel_width_pos = 0; 
 
+    int left = 0, right = 0, mid = 0;
+
     for (int i=0; i<img.height * img.step;i+=3)
     {
 	   if (pixel_width_pos++ >= img.width - 1)
@@ -46,26 +48,38 @@ void process_image_callback(const sensor_msgs::Image img)
 	   if (img.data[i] == white_pixel && img.data[i+1] == white_pixel && img.data[i+2] == white_pixel)
 	   {
 		
-    		ROS_INFO_STREAM("found white pixel " + std::to_string(pixel_width_pos));
 		if (pixel_width_pos < end_left_zone)
 		{
-		   drive_robot(0.0, speed);
+		   left++;
 		} 
 		else if (pixel_width_pos > start_right_zone) 
 		{
-		   drive_robot(0.0, -speed);
+		   right++;
 		} 
 		else 
 		{
-		   drive_robot(speed, 0.0);
+		   mid++;
 		}
-		
-
-		return;
 	   }
     }
 
-    drive_robot(0.0, 0.0);
+    ROS_INFO_STREAM("left " + std::to_string(left) + " mid " + std::to_string(mid) + " right " + std::to_string(right) );
+
+    if (left == 0 && right == 0 && mid == 0) {
+    	drive_robot(0.0, 0.0);
+   
+    } else if (left > 0 && right > 0 && mid > 0) {
+    	drive_robot(0.0, 0.0);
+    
+    } else if (left > mid) {
+	drive_robot(0.0, speed);
+    
+    } else if (mid > right) {
+        drive_robot(speed, 0.0);
+    
+    } else {
+	drive_robot(0.0, -speed);
+    }
 
 }
 
